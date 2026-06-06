@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { IssuesCard } from "@/components/dashboard/IssuesCard";
 import { OverviewCard } from "@/components/dashboard/OverviewCard";
 import { ReadmeCard } from "@/components/dashboard/ReadmeCard";
@@ -14,7 +15,7 @@ export default async function AnalyzePage({ searchParams }: { searchParams: Prom
       <main className="container" style={{ padding: "80px 0" }}>
         <div className="card" style={{ padding: 32 }}>
           <h1>Paste a GitHub repository URL to begin.</h1>
-          <a href="/" style={{ color: "var(--accent-2)", fontWeight: 700 }}>Return home →</a>
+          <Link href="/" style={{ color: "var(--accent-2)", fontWeight: 700 }}>Return home →</Link>
         </div>
       </main>
     );
