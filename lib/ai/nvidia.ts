@@ -38,6 +38,9 @@ async function callNvidia(prompt: Prompt, repairInstruction?: string) {
         model: process.env.NVIDIA_MODEL || NVIDIA_MODEL_FALLBACK,
         stream: false,
         max_tokens: 2_400,
+        chat_template_kwargs: {
+          enable_thinking: false,
+        },
         messages: [
           { role: "system", content: prompt.system },
           {

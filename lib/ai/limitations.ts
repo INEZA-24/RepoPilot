@@ -8,3 +8,7 @@ export function repositoryTreeLimitations(tree: { truncated: boolean; failed?: b
       : []),
   ];
 }
+
+export function mergeLimitations(...groups: string[][]) {
+  return [...new Set(groups.flat())];
+}

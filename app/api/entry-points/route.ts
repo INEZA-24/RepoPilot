@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildHeuristicFallback } from "@/lib/ai/fallback";
-import { repositoryTreeLimitations } from "@/lib/ai/limitations";
+import { mergeLimitations, repositoryTreeLimitations } from "@/lib/ai/limitations";
 import { normalizeNemotronMetadata } from "@/lib/ai/metadata";
 import { generateEntryPointsWithNvidia, NVIDIA_MODEL_FALLBACK, NvidiaProviderError } from "@/lib/ai/nvidia";
 import { buildEntryPointPrompt } from "@/lib/ai/prompt";
@@ -104,10 +104,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         ...verified,
-        limitations: [
-          ...verified.limitations,
-          ...repositoryTreeLimitations(treeResult),
-        ],
+        limitations: mergeLimitations(verified.limitations, repositoryTreeLimitations(treeResult)),
       });
     } catch (error) {
       const fallback = buildHeuristicFallback(repository, candidates, process.env.NVIDIA_MODEL || "heuristic");
@@ -116,10 +113,11 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           ...verified,
-          limitations: [
-            ...verified.limitations,
-            error instanceof Error ? error.message : "AI generation failed.",
-          ],
+          limitations: mergeLimitations(
+            verified.limitations,
+            repositoryTreeLimitations(treeResult),
+            [error instanceof Error ? error.message : "AI generation failed."],
+          ),
         },
         { status: error instanceof NvidiaProviderError && error.status === 429 ? 429 : 200 },
       );

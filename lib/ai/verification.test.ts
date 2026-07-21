@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { repositoryTreeLimitations } from "./limitations";
+import { mergeLimitations, repositoryTreeLimitations } from "./limitations";
 import { normalizeNemotronMetadata } from "./metadata";
 import { parseAIEntryPointJson } from "./json";
 import { verifyAIEntryPointAnalysis } from "./verify";
@@ -126,5 +126,9 @@ describe("AI response verification hardening", () => {
     expect(repositoryTreeLimitations({ truncated: false, failed: true })).toContain(
       "Repository file paths could not be retrieved, so file-based recommendations may be limited.",
     );
+  });
+
+  it("merges limitations without duplicate messages", () => {
+    expect(mergeLimitations(["A", "B"], ["B", "C"])).toEqual(["A", "B", "C"]);
   });
 });
