@@ -1,85 +1,48 @@
 # RepoPilot Architecture
 
-## Product Architecture
-
-RepoPilot is a phase-based contributor onboarding platform. The MVP focuses on a single workflow:
+RepoPilot is a phase-based contributor onboarding platform:
 
 ```text
-Paste GitHub URL → Fetch public repository signals → Render contributor dashboard
+Paste GitHub URL → Fetch public repository signals → Render dashboard → Optionally generate entry points
 ```
-
-## Project Initialization Plan
-
-1. Initialize a TypeScript Next.js App Router project.
-2. Keep the UI dark-mode-first and card-based for technical users.
-3. Build the GitHub integration as small reusable functions under `lib/github`.
-4. Define shared response contracts in `types/github.ts` before adding UI code.
-5. Implement a minimal `/api/analyze` endpoint for Phase 1 data aggregation.
-6. Add documentation that explains project purpose, architecture, API design, and roadmap.
 
 ## Folder Structure
 
 ```text
-app/
-  (marketing)/
-    page.tsx
-    about/page.tsx
-  analyze/
-    page.tsx
-    loading.tsx
-  api/
-    analyze/route.ts
-    github/route.ts
-    score/route.ts
-components/
-  landing/
-  dashboard/
-  ui/
-lib/
-  github/
-  utils/
-types/
-docs/
+app/analyze                 Server-rendered dashboard page
+app/api/analyze             Phase 1 repository analysis endpoint
+app/api/entry-points        Phase 2A recommendation endpoint
+components/dashboard        Dashboard cards, including AIEntryPointsCard
+lib/github                  GitHub REST helpers
+lib/recommendations         Deterministic path filtering and issue ranking
+lib/ai                      Prompt construction, NVIDIA client, JSON parsing, verification, fallback
+types                       Shared TypeScript contracts and schema validators
+docs                        Product and engineering documentation
 ```
 
-## Component Tree
+## Phase 1 Data Flow
 
-```text
-RootLayout
-└── MarketingPage
-    ├── Hero
-    ├── Features
-    ├── HowItWorks
-    └── DemoPreview
+`analyzeRepository` fetches metadata, languages, README, and up to 12 open non-PR issues through `githubRequest`. Missing README data degrades to `null`.
 
-AnalyzePage
-├── RepoHeader
-├── OverviewCard
-├── TechStackCard
-├── ReadmeCard
-└── IssuesCard
-```
+## Phase 2A AI Data Flow
 
-## TypeScript Types
+`POST /api/entry-points` is called only by the client-side generate button. It:
 
-The Phase 1 contracts live in `types/github.ts`:
+1. Validates `repoUrl` and the optional contributor profile.
+2. Parses the public GitHub repository URL.
+3. Fetches metadata, open issues, recursive default-branch tree, contributor documents, and the first relevant manifest.
+4. Filters repository paths to approximately 250 useful source, test, docs, config, and manifest paths.
+5. Ranks issue candidates with transparent deterministic signals.
+6. Builds a prompt that separates trusted instructions from untrusted repository evidence.
+7. Calls NVIDIA Nemotron using server-side `NVIDIA_API_KEY` and `NVIDIA_MODEL`.
+8. Strips optional Markdown JSON fences, parses JSON, validates with shared schemas, and retries once on malformed output.
+9. Verifies issue numbers, issue URLs, and file paths before returning data to the browser.
+10. Falls back to deterministic issue recommendations when AI generation fails.
 
-- `RepositoryMetadata`
-- `LanguageStat`
-- `ReadmePreview`
-- `RepositoryIssue`
-- `PhaseOneAnalysis`
+## Security Boundaries
 
-These types intentionally mirror the dashboard sections so API, data fetching, and UI stay aligned.
+Repository text, issue bodies, file names, manifests, and documentation are untrusted evidence. The prompt instructs the model to ignore repository-provided instructions, avoid secrets, use only supplied evidence, and return fewer than three recommendations when evidence is insufficient. Secrets are read only on the server and are never exposed to client components.
 
-## Architectural Boundaries
+## Current Limitations
 
-- `app` owns routing and page composition.
-- `components` owns presentation.
-- `lib/github` owns GitHub API calls and response shaping.
-- `lib/utils` owns reusable parsing and formatting helpers.
-- `types` owns shared contracts.
-
-## Deferred Architecture
-
-AI summaries, scoring, learning paths, and contribution roadmaps are intentionally deferred to later phases to keep the MVP honest and shippable.
+RepoPilot supports public GitHub repositories only. It does not clone repositories, execute code, support private repositories, create pull requests, authenticate users, or score maintainers/contributors/repository health.
