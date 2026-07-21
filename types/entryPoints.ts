@@ -1,7 +1,111 @@
-export type ContributorProfile = { experienceLevel: "beginner" | "intermediate" | "advanced"; skills: string[]; preferredContributionType: "any" | "code" | "documentation" | "tests" | "bug-fixes" };
-export type EntryPointRecommendation = { id: string; type: "issue" | "documentation" | "tests" | "code-exploration"; title: string; summary: string; difficulty: ContributorProfile["experienceLevel"]; confidence: "low" | "medium" | "high"; issueNumber?: number; issueUrl?: string; whyItFits: string; skillsRequired: string[]; filesToRead: Array<{ path: string; reason: string }>; firstSteps: string[]; evidence: string[]; warnings: string[] };
-export type AIEntryPointAnalysis = { repository: string; generatedAt: string; model: string; source: "nemotron" | "heuristic-fallback"; recommendations: EntryPointRecommendation[]; limitations: string[] };
-const exp = ["beginner","intermediate","advanced"] as const; const pref = ["any","code","documentation","tests","bug-fixes"] as const;
-export const contributorProfileSchema = { parse(input: unknown): ContributorProfile { const v = (input ?? {}) as Partial<ContributorProfile>; return { experienceLevel: exp.includes(v.experienceLevel as never) ? v.experienceLevel as ContributorProfile["experienceLevel"] : "beginner", skills: Array.isArray(v.skills) ? v.skills.filter((s): s is string => typeof s === "string" && s.trim().length > 0).map((s) => s.trim()).slice(0, 20) : [], preferredContributionType: pref.includes(v.preferredContributionType as never) ? v.preferredContributionType as ContributorProfile["preferredContributionType"] : "any" }; } };
-function isString(x: unknown): x is string { return typeof x === "string" && x.length > 0; }
-export const aiEntryPointAnalysisSchema = { parse(input: unknown): AIEntryPointAnalysis { const o = input as AIEntryPointAnalysis; if (!o || !isString(o.repository) || !isString(o.generatedAt) || !isString(o.model) || !["nemotron","heuristic-fallback"].includes(o.source) || !Array.isArray(o.recommendations)) throw new Error("Invalid AI analysis"); return { repository: o.repository, generatedAt: o.generatedAt, model: o.model, source: o.source, limitations: Array.isArray(o.limitations) ? o.limitations.filter(isString) : [], recommendations: o.recommendations.slice(0,3).map((r) => { if (!r || !isString(r.id) || !["issue","documentation","tests","code-exploration"].includes(r.type) || !isString(r.title) || !isString(r.summary) || !exp.includes(r.difficulty) || !["low","medium","high"].includes(r.confidence) || !isString(r.whyItFits)) throw new Error("Invalid recommendation"); return { ...r, skillsRequired: Array.isArray(r.skillsRequired) ? r.skillsRequired.filter(isString) : [], filesToRead: Array.isArray(r.filesToRead) ? r.filesToRead.filter((f) => f && isString(f.path) && isString(f.reason)) : [], firstSteps: Array.isArray(r.firstSteps) ? r.firstSteps.filter(isString) : [], evidence: Array.isArray(r.evidence) ? r.evidence.filter(isString) : [], warnings: Array.isArray(r.warnings) ? r.warnings.filter(isString) : [] }; }) }; } };
+export type ContributorProfile = {
+  experienceLevel: "beginner" | "intermediate" | "advanced";
+  skills: string[];
+  preferredContributionType: "any" | "code" | "documentation" | "tests" | "bug-fixes";
+};
+
+export type EntryPointRecommendation = {
+  id: string;
+  type: "issue" | "documentation" | "tests" | "code-exploration";
+  title: string;
+  summary: string;
+  difficulty: ContributorProfile["experienceLevel"];
+  confidence: "low" | "medium" | "high";
+  issueNumber?: number;
+  issueUrl?: string;
+  whyItFits: string;
+  skillsRequired: string[];
+  filesToRead: Array<{ path: string; reason: string }>;
+  firstSteps: string[];
+  evidence: string[];
+  warnings: string[];
+};
+
+export type AIEntryPointAnalysis = {
+  repository: string;
+  generatedAt: string;
+  model: string;
+  source: "nemotron" | "heuristic-fallback";
+  recommendations: EntryPointRecommendation[];
+  limitations: string[];
+};
+
+const EXPERIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
+const PREFERRED_TYPES = ["any", "code", "documentation", "tests", "bug-fixes"] as const;
+
+export const contributorProfileSchema = {
+  parse(input: unknown): ContributorProfile {
+    const value = (input ?? {}) as Partial<ContributorProfile>;
+
+    return {
+      experienceLevel: EXPERIENCE_LEVELS.includes(value.experienceLevel as never)
+        ? value.experienceLevel as ContributorProfile["experienceLevel"]
+        : "beginner",
+      skills: Array.isArray(value.skills)
+        ? value.skills
+            .filter((skill): skill is string => typeof skill === "string" && skill.trim().length > 0)
+            .map((skill) => skill.trim())
+            .slice(0, 20)
+        : [],
+      preferredContributionType: PREFERRED_TYPES.includes(value.preferredContributionType as never)
+        ? value.preferredContributionType as ContributorProfile["preferredContributionType"]
+        : "any",
+    };
+  },
+};
+
+function isString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+
+export const aiEntryPointAnalysisSchema = {
+  parse(input: unknown): AIEntryPointAnalysis {
+    const value = input as AIEntryPointAnalysis;
+
+    if (
+      !value ||
+      !isString(value.repository) ||
+      !isString(value.generatedAt) ||
+      !isString(value.model) ||
+      !["nemotron", "heuristic-fallback"].includes(value.source) ||
+      !Array.isArray(value.recommendations)
+    ) {
+      throw new Error("Invalid AI analysis");
+    }
+
+    return {
+      repository: value.repository,
+      generatedAt: value.generatedAt,
+      model: value.model,
+      source: value.source,
+      limitations: Array.isArray(value.limitations) ? value.limitations.filter(isString) : [],
+      recommendations: value.recommendations.slice(0, 3).map((recommendation) => {
+        if (
+          !recommendation ||
+          !isString(recommendation.id) ||
+          !["issue", "documentation", "tests", "code-exploration"].includes(recommendation.type) ||
+          !isString(recommendation.title) ||
+          !isString(recommendation.summary) ||
+          !EXPERIENCE_LEVELS.includes(recommendation.difficulty) ||
+          !["low", "medium", "high"].includes(recommendation.confidence) ||
+          !isString(recommendation.whyItFits)
+        ) {
+          throw new Error("Invalid recommendation");
+        }
+
+        return {
+          ...recommendation,
+          skillsRequired: Array.isArray(recommendation.skillsRequired)
+            ? recommendation.skillsRequired.filter(isString)
+            : [],
+          filesToRead: Array.isArray(recommendation.filesToRead)
+            ? recommendation.filesToRead.filter((file) => file && isString(file.path) && isString(file.reason))
+            : [],
+          firstSteps: Array.isArray(recommendation.firstSteps) ? recommendation.firstSteps.filter(isString) : [],
+          evidence: Array.isArray(recommendation.evidence) ? recommendation.evidence.filter(isString) : [],
+          warnings: Array.isArray(recommendation.warnings) ? recommendation.warnings.filter(isString) : [],
+        };
+      }),
+    };
+  },
+};
