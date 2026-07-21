@@ -5,8 +5,10 @@ type GitHubIssueResponse = {
   id: number;
   number: number;
   title: string;
+  body?: string | null;
   html_url: string;
   labels: Array<{ name: string }>;
+  assignees?: Array<{ login: string }>;
   comments: number;
   created_at: string;
   updated_at: string;
@@ -15,7 +17,7 @@ type GitHubIssueResponse = {
 
 export async function getIssues(owner: string, repo: string): Promise<RepositoryIssue[]> {
   const issues = await githubRequest<GitHubIssueResponse[]>(
-    `/repos/${owner}/${repo}/issues?state=open&per_page=8&sort=updated&direction=desc`,
+    `/repos/${owner}/${repo}/issues?state=open&per_page=12&sort=updated&direction=desc`,
   );
 
   return issues
@@ -24,8 +26,10 @@ export async function getIssues(owner: string, repo: string): Promise<Repository
       id: issue.id,
       number: issue.number,
       title: issue.title,
+      body: (issue.body ?? "").slice(0, 3000),
       html_url: issue.html_url,
       labels: issue.labels.map((label) => label.name),
+      assignees: (issue.assignees ?? []).map((assignee) => assignee.login),
       comments: issue.comments,
       created_at: issue.created_at,
       updated_at: issue.updated_at,

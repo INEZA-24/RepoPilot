@@ -1,14 +1,19 @@
-const steps = ["Paste a GitHub URL", "RepoPilot fetches public repository signals", "Review a focused contributor dashboard"];
+const steps = [
+  "Paste a public GitHub repository URL",
+  "Review repository context",
+  "Add contributor preferences",
+  "Generate verified contribution entry points",
+];
 
 export function HowItWorks() {
   return (
-    <section className="container" style={{ padding: "56px 0" }}>
-      <h2 style={{ fontSize: 40, letterSpacing: "-0.05em" }}>How it works</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+    <section className="section-block container">
+      <h2 className="section-heading">How it works</h2>
+      <div className="steps-grid">
         {steps.map((step, index) => (
           <article className="card" key={step} style={{ padding: 24 }}>
-            <span className="badge">Step {index + 1}</span>
-            <h3>{step}</h3>
+            <span className="chip">Step {index + 1}</span>
+            <h3 style={{ marginTop: 16 }}>{step}</h3>
           </article>
         ))}
       </div>
