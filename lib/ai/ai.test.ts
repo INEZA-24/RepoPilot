@@ -58,6 +58,37 @@ describe("ai utilities", () => {
     expect(prompt.user).toContain("UNTRUSTED_REPOSITORY_EVIDENCE_END");
   });
 
+  it("includes the complete nested recommendation output contract", () => {
+    const prompt = buildEntryPointPrompt({
+      repository,
+      profile: { experienceLevel: "beginner", skills: [], preferredContributionType: "any" },
+      issues: [],
+      paths: ["src/a.ts"],
+      treeTruncated: false,
+      documents: [],
+      manifest: null,
+    });
+
+    expect(prompt.user).toContain("OUTPUT CONTRACT");
+    expect(prompt.user).toContain("repository");
+    expect(prompt.user).toContain("generatedAt");
+    expect(prompt.user).toContain("model");
+    expect(prompt.user).toContain("source");
+    expect(prompt.user).toContain("recommendations");
+    expect(prompt.user).toContain("limitations");
+    expect(prompt.user).toContain("issueNumber");
+    expect(prompt.user).toContain("issueUrl");
+    expect(prompt.user).toContain("whyItFits");
+    expect(prompt.user).toContain("filesToRead");
+    expect(prompt.user).toContain("path");
+    expect(prompt.user).toContain("reason");
+    expect(prompt.user).toContain("type=issue|documentation|tests|code-exploration");
+    expect(prompt.user).toContain("difficulty=beginner|intermediate|advanced");
+    expect(prompt.user).toContain("confidence=low|medium|high");
+    expect(prompt.user).toContain("maximum 3 filesToRead");
+    expect(prompt.user).toContain("maximum 5 skillsRequired");
+  });
+
   it("rejects hallucinated issue numbers and file paths", () => {
     const issue: RepositoryIssue = {
       id: 1,

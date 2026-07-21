@@ -8,3 +8,8 @@ export function parseDisplayableFallbackAnalysis(data: unknown): AIEntryPointAna
     return null;
   }
 }
+
+
+export function hasDisplayableIssueLink(recommendation: { issueNumber?: number; issueUrl?: string }) {
+  return typeof recommendation.issueNumber === "number" && Boolean(recommendation.issueUrl);
+}

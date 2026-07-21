@@ -58,6 +58,14 @@ function isString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
+function optionalPositiveInteger(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value > 0 ? value : undefined;
+}
+
+function optionalNonEmptyString(value: unknown): string | undefined {
+  return isString(value) ? value : undefined;
+}
+
 export const aiEntryPointAnalysisSchema = {
   parse(input: unknown): AIEntryPointAnalysis {
     const value = input as AIEntryPointAnalysis;
@@ -93,17 +101,33 @@ export const aiEntryPointAnalysisSchema = {
           throw new Error("Invalid recommendation");
         }
 
+        const issueNumber = optionalPositiveInteger(recommendation.issueNumber);
+        const issueUrl = optionalNonEmptyString(recommendation.issueUrl);
+
         return {
-          ...recommendation,
+          id: recommendation.id,
+          type: recommendation.type,
+          title: recommendation.title,
+          summary: recommendation.summary,
+          difficulty: recommendation.difficulty,
+          confidence: recommendation.confidence,
+          ...(issueNumber === undefined ? {} : { issueNumber }),
+          ...(issueUrl === undefined ? {} : { issueUrl }),
+          whyItFits: recommendation.whyItFits,
           skillsRequired: Array.isArray(recommendation.skillsRequired)
-            ? recommendation.skillsRequired.filter(isString)
+            ? recommendation.skillsRequired.filter(isString).slice(0, 5)
             : [],
           filesToRead: Array.isArray(recommendation.filesToRead)
-            ? recommendation.filesToRead.filter((file) => file && isString(file.path) && isString(file.reason))
+            ? recommendation.filesToRead
+                .filter((file) => file && isString(file.path) && isString(file.reason))
+                .slice(0, 3)
+                .map((file) => ({ path: file.path, reason: file.reason }))
             : [],
-          firstSteps: Array.isArray(recommendation.firstSteps) ? recommendation.firstSteps.filter(isString) : [],
-          evidence: Array.isArray(recommendation.evidence) ? recommendation.evidence.filter(isString) : [],
-          warnings: Array.isArray(recommendation.warnings) ? recommendation.warnings.filter(isString) : [],
+          firstSteps: Array.isArray(recommendation.firstSteps)
+            ? recommendation.firstSteps.filter(isString).slice(0, 3)
+            : [],
+          evidence: Array.isArray(recommendation.evidence) ? recommendation.evidence.filter(isString).slice(0, 4) : [],
+          warnings: Array.isArray(recommendation.warnings) ? recommendation.warnings.filter(isString).slice(0, 3) : [],
         };
       }),
     };

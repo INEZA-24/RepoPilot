@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { buildHeuristicFallback } from "@/lib/ai/fallback";
-import { generateEntryPointsWithNvidia, NvidiaProviderError } from "@/lib/ai/nvidia";
+import { repositoryTreeLimitations } from "@/lib/ai/limitations";
+import { normalizeNemotronMetadata } from "@/lib/ai/metadata";
+import { generateEntryPointsWithNvidia, NVIDIA_MODEL_FALLBACK, NvidiaProviderError } from "@/lib/ai/nvidia";
 import { buildEntryPointPrompt } from "@/lib/ai/prompt";
 import { verifyAIEntryPointAnalysis } from "@/lib/ai/verify";
 import { getContributorDocuments, getProjectManifest } from "@/lib/github/getContentFile";
@@ -73,7 +75,9 @@ export async function POST(request: Request) {
     const repository = await getRepo(owner, repo);
     const [issues, treeResult, documents, manifest] = await Promise.all([
       getIssues(owner, repo),
-      getRepositoryTree(owner, repo, repository.default_branch).catch(() => ({ paths: [], truncated: false })),
+      getRepositoryTree(owner, repo, repository.default_branch)
+        .then((tree) => ({ ...tree, failed: false }))
+        .catch(() => ({ paths: [], truncated: false, failed: true })),
       getContributorDocuments(owner, repo),
       getProjectManifest(owner, repo),
     ]);
@@ -91,15 +95,18 @@ export async function POST(request: Request) {
 
     try {
       const ai = await generateEntryPointsWithNvidia(prompt);
-      const verified = verifyAIEntryPointAnalysis(ai, candidates, paths);
+      const normalized = normalizeNemotronMetadata(
+        ai,
+        repository,
+        process.env.NVIDIA_MODEL || NVIDIA_MODEL_FALLBACK,
+      );
+      const verified = verifyAIEntryPointAnalysis(normalized, candidates, paths);
 
       return NextResponse.json({
         ...verified,
         limitations: [
           ...verified.limitations,
-          ...(treeResult.truncated
-            ? ["GitHub marked the repository tree as truncated, so file-path evidence may be incomplete."]
-            : []),
+          ...repositoryTreeLimitations(treeResult),
         ],
       });
     } catch (error) {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseDisplayableFallbackAnalysis } from "./displayableFallback";
+import { hasDisplayableIssueLink, parseDisplayableFallbackAnalysis } from "./displayableFallback";
 
 const fallbackAnalysis = {
   repository: "owner/repo",
@@ -41,5 +41,9 @@ describe("parseDisplayableFallbackAnalysis", () => {
 
   it("rejects valid Nemotron output on non-2xx responses because only fallback is displayable there", () => {
     expect(parseDisplayableFallbackAnalysis({ ...fallbackAnalysis, source: "nemotron" })).toBeNull();
+  });
+
+  it("does not consider an unverified issueUrl UI-displayable without issueNumber", () => {
+    expect(hasDisplayableIssueLink({ issueUrl: "https://evil.example/issues/12" })).toBe(false);
   });
 });

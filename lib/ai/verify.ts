@@ -8,30 +8,40 @@ export function verifyRecommendation(
 ): EntryPointRecommendation | null {
   const issueMap = new Map(issues.map((issue) => [issue.number, issue]));
   const pathSet = new Set(paths);
-  let next = {
-    ...recommendation,
-    filesToRead: recommendation.filesToRead.filter((file) => pathSet.has(file.path)),
-  };
+  const filesToRead = recommendation.filesToRead.filter((file) => pathSet.has(file.path));
+  let verifiedIssue: RepositoryIssue | undefined;
 
-  if (next.issueNumber !== undefined) {
-    const issue = issueMap.get(next.issueNumber);
+  if (recommendation.issueNumber !== undefined) {
+    verifiedIssue = issueMap.get(recommendation.issueNumber);
 
-    if (!issue || (next.issueUrl && next.issueUrl !== issue.html_url)) {
+    if (!verifiedIssue) {
       return null;
     }
-
-    next = { ...next, issueUrl: issue.html_url };
   }
 
-  if (next.type === "issue" && next.issueNumber === undefined) {
+  if (recommendation.type === "issue" && !verifiedIssue) {
     return null;
   }
 
-  if (recommendation.filesToRead.length > 0 && next.filesToRead.length === 0 && next.type !== "issue") {
+  if (recommendation.filesToRead.length > 0 && filesToRead.length === 0 && recommendation.type !== "issue") {
     return null;
   }
 
-  return next;
+  return {
+    id: recommendation.id,
+    type: recommendation.type,
+    title: recommendation.title,
+    summary: recommendation.summary,
+    difficulty: recommendation.difficulty,
+    confidence: recommendation.confidence,
+    ...(verifiedIssue ? { issueNumber: verifiedIssue.number, issueUrl: verifiedIssue.html_url } : {}),
+    whyItFits: recommendation.whyItFits,
+    skillsRequired: recommendation.skillsRequired,
+    filesToRead,
+    firstSteps: recommendation.firstSteps,
+    evidence: recommendation.evidence,
+    warnings: recommendation.warnings,
+  };
 }
 
 export function verifyAIEntryPointAnalysis(

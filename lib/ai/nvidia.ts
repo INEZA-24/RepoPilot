@@ -37,7 +37,7 @@ async function callNvidia(prompt: Prompt, repairInstruction?: string) {
       body: JSON.stringify({
         model: process.env.NVIDIA_MODEL || NVIDIA_MODEL_FALLBACK,
         stream: false,
-        max_tokens: 1_400,
+        max_tokens: 2_400,
         messages: [
           { role: "system", content: prompt.system },
           {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { parseDisplayableFallbackAnalysis } from "@/lib/ai/displayableFallback";
+import { hasDisplayableIssueLink, parseDisplayableFallbackAnalysis } from "@/lib/ai/displayableFallback";
 import type { AIEntryPointAnalysis, ContributorProfile } from "@/types/entryPoints";
 
 export function AIEntryPointsCard({ repoUrl }: { repoUrl: string }) {
@@ -125,7 +125,7 @@ function EntryPointResults({ analysis }: { analysis: AIEntryPointAnalysis }) {
             <span className="badge">{recommendation.confidence} confidence</span>
           </p>
           <p style={{ color: "var(--muted)" }}>{recommendation.summary}</p>
-          {recommendation.issueUrl ? (
+          {hasDisplayableIssueLink(recommendation) ? (
             <a
               href={recommendation.issueUrl}
               target="_blank"
