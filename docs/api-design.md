@@ -1,63 +1,36 @@
 # API Design
 
-## Goals
-
-The Phase 1 API should be simple, reliable, and directly tied to contributor onboarding. It fetches only the repository signals needed for the MVP dashboard.
-
-## Endpoints
-
-### `POST /api/analyze`
+## `POST /api/analyze`
 
 Aggregates Phase 1 repository data.
 
-Request body:
+```json
+{ "repoUrl": "https://github.com/vercel/next.js" }
+```
+
+Returns repository metadata, languages, README preview, and open issues. Invalid URLs return `400`; unavailable repositories and GitHub failures return controlled JSON errors.
+
+## `POST /api/entry-points`
+
+Generates optional Phase 2A contribution entry points.
 
 ```json
 {
-  "repoUrl": "https://github.com/vercel/next.js"
+  "repoUrl": "https://github.com/owner/repository",
+  "profile": {
+    "experienceLevel": "beginner",
+    "skills": ["javascript", "react"],
+    "preferredContributionType": "any"
+  }
 }
 ```
 
-Response body:
+The profile is optional. The endpoint gathers evidence, ranks issue candidates, prompts NVIDIA Nemotron, validates and verifies the response, and returns up to three recommendations. AI failures degrade to deterministic `heuristic-fallback` output when suitable candidates exist.
 
-```json
-{
-  "repository": {},
-  "languages": [],
-  "readme": {},
-  "issues": []
-}
-```
+## Environment Variables
 
-Data sources:
+- `GITHUB_TOKEN` for GitHub rate-limit headroom
+- `NVIDIA_API_KEY` for NVIDIA hosted chat completions
+- `NVIDIA_MODEL`, defaulting to `nvidia/nemotron-3-nano-30b-a3b`
 
-- `GET /repos/{owner}/{repo}`
-- `GET /repos/{owner}/{repo}/languages`
-- `GET /repos/{owner}/{repo}/readme`
-- `GET /repos/{owner}/{repo}/issues`
-
-### `GET /api/github?owner={owner}&repo={repo}`
-
-Fetches raw repository metadata for debugging and incremental development.
-
-### `GET /api/score`
-
-Returns a planned-status placeholder because scoring is a Phase 3 feature.
-
-## GitHub Integration Plan
-
-1. Parse and validate GitHub URLs through `parseRepoUrl`.
-2. Route all GitHub REST requests through `githubRequest`.
-3. Use `GITHUB_TOKEN` when available to increase API rate limits.
-4. Normalize language and issue responses before sending them to the UI.
-5. Keep Phase 1 GitHub calls limited to public repository signals.
-
-## Error Handling
-
-- Invalid URLs return a `400` response.
-- GitHub request failures return a clear JSON error.
-- Missing README files degrade gracefully to `readme: null`.
-
-## Future API Work
-
-Future endpoints for summaries, scoring, and roadmaps should be added only when Phase 2 or Phase 3 begins.
+All variables are server-side only.

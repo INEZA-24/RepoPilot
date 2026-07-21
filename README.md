@@ -1,20 +1,16 @@
 # RepoPilot
+
+**Navigate Any Open Source Repository in Minutes**
+
+RepoPilot is an open-source contributor onboarding platform. A contributor pastes a public GitHub repository URL and receives a focused dashboard with repository metadata, languages, README context, open issues, and optional Phase 2A NVIDIA Nemotron contribution entry-point recommendations.
+
 ## Live Demo
 
 [View RepoPilot on Vercel](https://repo-pilotv1.vercel.app/)
-**Navigate Any Open Source Repository in Minutes**
 
-RepoPilot is an AI-powered Open Source Contributor Onboarding Platform. It helps developers understand, navigate, and contribute to GitHub repositories faster by turning a repository URL into a focused contributor dashboard.
+## Implemented Features
 
-## Problem Statement
-
-Joining an open source project often takes days of reading before a developer knows where to begin. Important contributor signals are scattered across READMEs, issues, language files, repository metadata, and maintainer documentation.
-
-## Solution
-
-RepoPilot acts like GPS for open source. In Phase 1, a contributor pastes a public GitHub repository URL and receives a polished dashboard with the core context needed to start exploring productively.
-
-## Phase 1 Features
+### Phase 1
 
 - Repository metadata: stars, forks, default branch, license, activity, and owner
 - Language breakdown for quick tech-stack orientation
@@ -22,66 +18,76 @@ RepoPilot acts like GPS for open source. In Phase 1, a contributor pastes a publ
 - Open issue discovery to surface possible entry points
 - Dark-mode-first dashboard inspired by GitHub, Vercel, and Linear
 
-## Screenshots
+### Phase 2A
 
-Screenshots will be added as the MVP UI stabilizes.
+- User-triggered NVIDIA Nemotron recommendation generation after analysis
+- Optional contributor profile: experience level, known skills, and preferred contribution type
+- Evidence collection from open issues, filtered repository paths, contributor docs, and project manifest
+- Prompt-injection protections that treat repository text as untrusted evidence
+- Server-side verification of issue numbers, issue URLs, and file paths
+- Deterministic heuristic fallback when NVIDIA is unavailable or returns malformed output
+
+Phase 2A does **not** add authentication, private repository support, repository cloning, code execution, automatic pull requests, maintainer scoring, contributor scoring, or repository health scoring.
 
 ## Installation Guide
 
 ```bash
-git clone https://github.com/TECH-WIZARD/RepoPilot.git
+git clone https://github.com/INEZA-24/RepoPilot.git
 cd RepoPilot
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and paste a public GitHub repository URL.
 
-## Testing Before a PR
+## Environment Variables
 
-Run the full pre-PR check locally:
+`.env.local` is ignored by Git and should contain server-side secrets only:
 
 ```bash
+GITHUB_TOKEN=
+NVIDIA_API_KEY=
+NVIDIA_MODEL=nvidia/nemotron-3-nano-30b-a3b
+```
+
+- `GITHUB_TOKEN` increases GitHub API rate limits for public repository analysis.
+- `NVIDIA_API_KEY` enables `/api/entry-points` to call NVIDIA's hosted chat completions endpoint.
+- `NVIDIA_MODEL` is optional and falls back to `nvidia/nemotron-3-nano-30b-a3b`.
+
+Never use `NEXT_PUBLIC_NVIDIA_API_KEY` or `NEXT_PUBLIC_GITHUB_TOKEN`; credentials must remain server-side.
+
+### Vercel Setup
+
+In Vercel, add `GITHUB_TOKEN`, `NVIDIA_API_KEY`, and optionally `NVIDIA_MODEL` under Project Settings → Environment Variables for the environments you deploy. Redeploy after changing them.
+
+## AI Pipeline
+
+`POST /api/entry-points` validates the request, parses the GitHub URL, gathers repository evidence, ranks issue candidates deterministically, builds a protected prompt, calls NVIDIA with `stream: false`, parses JSON, validates it with the shared schema validator, retries once for JSON repair, verifies every issue and file reference, and returns up to three recommendations.
+
+If NVIDIA fails, RepoPilot keeps the dashboard usable and returns `source: "heuristic-fallback"` recommendations when suitable ranked issues exist. Empty or issue-free repositories return honest limitations instead of fabricated work.
+
+## Testing Before a PR
+
+Run:
+
+```bash
+npm run test
+npm run typecheck
+npm run lint
+npm run build
 npm run check
 ```
 
-Then start the app with `npm run dev`, analyze a real public repository, and verify the dashboard renders metadata, languages, README context, and open issues. See [`docs/testing.md`](docs/testing.md) for the full smoke-test checklist and API curl examples.
-
-Optional environment variable:
-
-```bash
-GITHUB_TOKEN=ghp_your_token
-```
-
-A GitHub token increases API rate limits for local development and demos.
+Automated tests mock GitHub and NVIDIA behavior and must not consume real API credits.
 
 ## Architecture Overview
 
-RepoPilot uses the Next.js App Router with a small, phase-based architecture:
+RepoPilot uses the Next.js App Router with a small phase-based architecture. See [`docs/architecture.md`](docs/architecture.md) and [`docs/api-design.md`](docs/api-design.md) for details.
 
-- `app/(marketing)` contains the landing and about pages.
-- `app/analyze` renders the Phase 1 contributor dashboard.
-- `app/api/analyze` exposes the repository analysis endpoint.
-- `lib/github` contains GitHub API integration helpers.
-- `lib/utils` contains URL parsing and shared utilities.
-- `types` contains TypeScript contracts shared by API and UI code.
-- `components/landing` and `components/dashboard` keep UI surfaces modular.
+## Roadmap
 
-See [`docs/architecture.md`](docs/architecture.md) and [`docs/api-design.md`](docs/api-design.md) for more detail.
-
-## Future Roadmap
-
-RepoPilot is intentionally built in phases:
-
-1. **Phase 1 MVP:** repository metadata, languages, README preview, open issues, and basic dashboard.
-2. **Phase 2:** AI repository summary, recommended reading order, beginner friendliness analysis, and learning path.
-3. **Phase 3:** contribution roadmap, contributor readiness score, repository health score, and maintainer recommendations.
-
-See [`docs/roadmap.md`](docs/roadmap.md) for the implementation roadmap.
-
-## Contributing Guide
-
-We welcome contributors who care about making open source easier to join. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md), then review the Phase 1 scope in [`docs/roadmap.md`](docs/roadmap.md).
+See [`docs/roadmap.md`](docs/roadmap.md). Phase 2A entry points are implemented; broader Phase 2 learning paths and Phase 3 scoring remain planned only.
 
 ## License
 
