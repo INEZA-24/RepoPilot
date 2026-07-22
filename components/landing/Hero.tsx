@@ -1,30 +1,35 @@
 export function Hero() {
   return (
-    <section className="container" style={{ padding: "72px 0 48px" }}>
-      <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 72 }}>
-        <strong style={{ letterSpacing: "-0.04em", fontSize: 22 }}>RepoPilot</strong>
-        <a href="/about" style={{ color: "var(--muted)" }}>About</a>
-      </nav>
-      <div style={{ maxWidth: 900 }}>
-        <span className="badge">Navigate Any Open Source Repository in Minutes</span>
-        <h1 style={{ fontSize: "clamp(48px, 8vw, 96px)", lineHeight: 0.95, letterSpacing: "-0.075em", margin: "24px 0" }}>
-          Contributor onboarding for any GitHub repository.
-        </h1>
-        <p style={{ color: "var(--muted)", fontSize: 22, lineHeight: 1.6, maxWidth: 760 }}>
-          Paste a repository URL and get the essential Phase 1 context contributors need: repository
-          metadata, languages, README preview, and beginner-friendly open issues.
-        </p>
-        <form action="/analyze" style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap" }}>
-          <input
-            aria-label="GitHub repository URL"
-            name="repo"
-            placeholder="https://github.com/vercel/next.js"
-            style={{ flex: "1 1 360px", minWidth: 0, padding: "16px 18px", borderRadius: 14, border: "1px solid var(--border)", background: "rgba(15, 23, 42, 0.8)", color: "var(--text)" }}
-          />
-          <button style={{ padding: "16px 22px", borderRadius: 14, border: 0, background: "linear-gradient(135deg, var(--accent), var(--accent-2))", color: "white", cursor: "pointer", fontWeight: 700 }}>
-            Analyze repository
-          </button>
-        </form>
+    <section className="hero container">
+      <div className="hero-grid">
+        <div>
+          <span className="badge">Navigate any open source repository in minutes</span>
+          <h1 className="page-heading">Contributor onboarding for public GitHub repositories.</h1>
+          <p className="hero-copy">
+            Paste a repository URL to review metadata, languages, README context, open issues, and optional AI
+            contribution entry points grounded in verified repository evidence.
+          </p>
+          <form id="analyze-repository" action="/analyze" className="hero-form">
+            <label className="form-field" style={{ flex: "1 1 360px" }}>
+              <span className="field-label">GitHub repository URL</span>
+              <input className="input" aria-label="GitHub repository URL" name="repo" placeholder="https://github.com/vercel/next.js" />
+            </label>
+            <button className="btn btn-primary" style={{ alignSelf: "end" }}>Analyze repository</button>
+          </form>
+          <div className="action-toolbar" style={{ justifyContent: "flex-start", marginTop: 14 }}>
+            <a className="btn btn-secondary" href="https://github.com/INEZA-24/RepoPilot" target="_blank" rel="noreferrer" aria-label="View RepoPilot source on GitHub">
+              View source on GitHub
+            </a>
+          </div>
+        </div>
+        <div className="window-card" aria-hidden="true">
+          <div className="window-top"><span className="dot" style={{ background: "#ef4444" }} /><span className="dot" style={{ background: "#f59e0b" }} /><span className="dot" style={{ background: "#22c55e" }} /></div>
+          <div style={{ padding: 22, display: "grid", gap: 12 }}>
+            <span className="chip">Public repository</span>
+            <strong style={{ fontSize: 26, letterSpacing: "-.04em" }}>owner/project</strong>
+            <p className="muted" style={{ margin: 0 }}>Metadata, README, issues, and verified contribution entry points.</p>
+          </div>
+        </div>
       </div>
     </section>
   );
