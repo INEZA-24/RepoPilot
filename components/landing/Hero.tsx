@@ -6,8 +6,8 @@ export function Hero() {
           <span className="badge">Navigate any open source repository in minutes</span>
           <h1 className="page-heading">Contributor onboarding for public GitHub repositories.</h1>
           <p className="hero-copy">
-            Paste a repository URL to review metadata, languages, README context, open issues, and optional AI
-            contribution entry points grounded in verified repository evidence.
+            Paste a repository URL to review metadata, languages, README context, open issues, and optional NVIDIA
+            Nemotron contribution entry points grounded in verified repository evidence.
           </p>
           <form id="analyze-repository" action="/analyze" className="hero-form">
             <label className="form-field" style={{ flex: "1 1 360px" }}>

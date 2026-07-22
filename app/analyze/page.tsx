@@ -42,12 +42,11 @@ export default async function AnalyzePage({ searchParams }: { searchParams: Prom
     analysis = await analyzeRepository(owner, repo);
   } catch (error) {
     return (
-      <main className="site-main container" style={{ padding: "48px 0 80px" }}>
-        <DashboardActions />
-        <div className="elevated-card" style={{ padding: 32 }}>
-          <h1 className="section-heading">We could not analyze that repository.</h1>
-          <p className="error-text" role="alert">{error instanceof Error ? error.message : "Check the URL, repository visibility, network connection, or GitHub rate limit."}</p>
-          <Link className="btn btn-primary" href="/#analyze-repository">Try another repository</Link>
+      <main className="container" style={{ padding: "80px 0" }}>
+        <div className="card" style={{ padding: 32 }}>
+          <h1>We could not analyze that repository.</h1>
+          <p style={{ color: "var(--muted)" }}>{error instanceof Error ? error.message : "Check the URL, repository visibility, network connection, or GitHub rate limit."}</p>
+          <Link href="/" style={{ color: "var(--accent-2)", fontWeight: 700 }}>Try another repository →</Link>
         </div>
       </main>
     );
@@ -58,7 +57,7 @@ export default async function AnalyzePage({ searchParams }: { searchParams: Prom
       <DashboardActions />
       <RepoHeader repository={analysis.repository} />
       <AIEntryPointsCard repoUrl={repoUrl} />
-      <section className="dashboard-grid">
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginTop: 16 }}>
         <div style={{ display: "grid", gap: 16 }}>
           <OverviewCard repository={analysis.repository} />
           <TechStackCard languages={analysis.languages} />

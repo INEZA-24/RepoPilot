@@ -11,7 +11,7 @@ export default function AboutPage() {
       <div className="feature-grid" style={{ marginTop: 28 }}>
         <article className="elevated-card" style={{ padding: 24 }}>
           <h2 className="section-heading" style={{ fontSize: 28 }}>What is implemented</h2>
-          <p className="muted">Phase 1 analysis plus user-triggered Phase 2A contribution recommendations.</p>
+          <p className="muted">Phase 1 analysis plus user-triggered Phase 2A Nemotron entry-point recommendations.</p>
         </article>
         <article className="elevated-card" style={{ padding: 24 }}>
           <h2 className="section-heading" style={{ fontSize: 28 }}>What stays guarded</h2>

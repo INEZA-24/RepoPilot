@@ -1,6 +1,6 @@
 const features = [
   ["Repository context", "Metadata, languages, README previews, and open issues remain the core Phase 1 dashboard."],
-  ["Contribution entry points", "Phase 2A adds optional AI recommendations after the user asks for them."],
+  ["Contribution entry points", "Phase 2A adds optional Nemotron recommendations after the user asks for them."],
   ["Verified evidence", "Issue numbers, issue URLs, and file paths are checked before results are shown."],
   ["Fallback ready", "A deterministic heuristic fallback keeps the dashboard useful if AI output is unavailable."],
 ];
