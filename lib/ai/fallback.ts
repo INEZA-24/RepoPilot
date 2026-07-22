@@ -1,0 +1,38 @@
+import type { AIEntryPointAnalysis } from "@/types/entryPoints";
+import type { RepositoryMetadata } from "@/types/github";
+import type { RankedIssueCandidate } from "@/lib/recommendations/rankIssueCandidates";
+
+export function buildHeuristicFallback(
+  repository: RepositoryMetadata,
+  issues: RankedIssueCandidate[],
+  model = "heuristic",
+): AIEntryPointAnalysis {
+  return {
+    repository: repository.full_name,
+    generatedAt: new Date().toISOString(),
+    model,
+    source: "heuristic-fallback",
+    recommendations: issues.slice(0, 3).map((issue) => ({
+      id: `issue-${issue.number}`,
+      type: "issue",
+      title: issue.title,
+      summary: (issue.body || "Open issue selected by RepoPilot's deterministic ranking.").slice(0, 220),
+      difficulty: issue.labels.some((label) => /advanced|architecture/i.test(label)) ? "advanced" : "beginner",
+      confidence: issue.score > 25 ? "high" : "medium",
+      issueNumber: issue.number,
+      issueUrl: issue.html_url,
+      whyItFits: `Ranked well because: ${issue.reasons.slice(0, 4).join(", ")}.`,
+      skillsRequired: [],
+      filesToRead: [],
+      firstSteps: [
+        "Read the full issue and maintainer discussion on GitHub.",
+        "Confirm the issue is still available and ask a concise clarifying question if needed.",
+      ],
+      evidence: [`Issue #${issue.number}`, ...issue.labels.map((label) => `Label: ${label}`)],
+      warnings: ["Generated without NVIDIA because the AI provider was unavailable or returned invalid output."],
+    })),
+    limitations: issues.length
+      ? ["Fallback uses issue metadata only and may be less tailored than Nemotron output."]
+      : ["No suitable open issue candidates were found."],
+  };
+}

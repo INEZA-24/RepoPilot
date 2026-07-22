@@ -5,7 +5,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 
 export default function MarketingPage() {
   return (
-    <main>
+    <main className="site-main">
       <Hero />
       <Features />
       <HowItWorks />

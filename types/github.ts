@@ -39,8 +39,10 @@ export type RepositoryIssue = {
   id: number;
   number: number;
   title: string;
+  body?: string;
   html_url: string;
   labels: string[];
+  assignees?: string[];
   comments: number;
   created_at: string;
   updated_at: string;
