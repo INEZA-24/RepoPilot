@@ -34,6 +34,7 @@ export function verifyRecommendation(
     summary: recommendation.summary,
     difficulty: recommendation.difficulty,
     confidence: recommendation.confidence,
+    estimatedEffort: recommendation.estimatedEffort,
     ...(verifiedIssue ? { issueNumber: verifiedIssue.number, issueUrl: verifiedIssue.html_url } : {}),
     whyItFits: recommendation.whyItFits,
     skillsRequired: recommendation.skillsRequired,

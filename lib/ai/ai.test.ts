@@ -114,12 +114,14 @@ describe("ai utilities", () => {
     expect(prompt.user).toContain("issueNumber");
     expect(prompt.user).toContain("issueUrl");
     expect(prompt.user).toContain("whyItFits");
+    expect(prompt.user).toContain("estimatedEffort");
     expect(prompt.user).toContain("filesToRead");
     expect(prompt.user).toContain("path");
     expect(prompt.user).toContain("reason");
     expect(prompt.user).toContain("type=issue|documentation|tests|code-exploration");
     expect(prompt.user).toContain("difficulty=beginner|intermediate|advanced");
     expect(prompt.user).toContain("confidence=low|medium|high");
+    expect(prompt.user).toContain("estimatedEffort=under-1-hour|1-3-hours|3-5-hours|multi-session");
     expect(prompt.user).toContain("maximum 3 filesToRead");
     expect(prompt.user).toContain("maximum 5 skillsRequired");
   });
@@ -151,6 +153,7 @@ describe("ai utilities", () => {
           summary: "Fake summary",
           difficulty: "beginner",
           confidence: "low",
+          estimatedEffort: "1-3-hours",
           issueNumber: 2,
           issueUrl: "https://bad.example/issue/2",
           whyItFits: "Fake evidence",

@@ -49,6 +49,7 @@ function analysisWithRecommendation(recommendation: Record<string, unknown>) {
         summary: "Short summary",
         difficulty: "beginner",
         confidence: "medium",
+        estimatedEffort: "1-3-hours",
         whyItFits: "It references supplied evidence.",
         skillsRequired: [],
         filesToRead: [],
@@ -89,9 +90,9 @@ describe("AI response verification hardening", () => {
     expect(verified.recommendations[0]).toMatchObject({
       issueNumber: 12,
       issueUrl: "https://github.com/owner/repo/issues/12",
+      estimatedEffort: "1-3-hours",
     });
   });
-
 
   it("removes unverified issue URLs from non-issue recommendations", () => {
     const analysis = analysisWithRecommendation({

@@ -14,6 +14,7 @@ const fallbackAnalysis = {
       summary: "A deterministic fallback recommendation.",
       difficulty: "beginner",
       confidence: "medium",
+      estimatedEffort: "1-3-hours",
       issueNumber: 1,
       issueUrl: "https://github.com/owner/repo/issues/1",
       whyItFits: "It is labeled documentation.",
