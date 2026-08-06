@@ -107,7 +107,12 @@ export async function POST(request: Request) {
         limitations: mergeLimitations(verified.limitations, repositoryTreeLimitations(treeResult)),
       });
     } catch (error) {
-      const fallback = buildHeuristicFallback(repository, candidates, process.env.NVIDIA_MODEL || "heuristic");
+      const fallback = buildHeuristicFallback(
+        repository,
+        candidates,
+        process.env.NVIDIA_MODEL || "heuristic",
+        profile,
+      );
       const verified = verifyAIEntryPointAnalysis(fallback, candidates, paths);
 
       return NextResponse.json(
@@ -123,6 +128,6 @@ export async function POST(request: Request) {
       );
     }
   } catch (error) {
-    return NextResponse.json({ error: "Unable to generate entry points." }, { status: statusFor(error) });
+    return NextResponse.json({ error: "Unable to generate contribution missions." }, { status: statusFor(error) });
   }
 }
