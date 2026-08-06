@@ -2,6 +2,7 @@ export type ContributorProfile = {
   experienceLevel: "beginner" | "intermediate" | "advanced";
   skills: string[];
   preferredContributionType: "any" | "code" | "documentation" | "tests" | "bug-fixes";
+  goal?: string;
 };
 
 export type EntryPointRecommendation = {
@@ -11,6 +12,7 @@ export type EntryPointRecommendation = {
   summary: string;
   difficulty: ContributorProfile["experienceLevel"];
   confidence: "low" | "medium" | "high";
+  estimatedEffort: "under-1-hour" | "1-3-hours" | "3-5-hours" | "multi-session";
   issueNumber?: number;
   issueUrl?: string;
   whyItFits: string;
@@ -32,10 +34,12 @@ export type AIEntryPointAnalysis = {
 
 const EXPERIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
 const PREFERRED_TYPES = ["any", "code", "documentation", "tests", "bug-fixes"] as const;
+const EFFORT_LEVELS = ["under-1-hour", "1-3-hours", "3-5-hours", "multi-session"] as const;
 
 export const contributorProfileSchema = {
   parse(input: unknown): ContributorProfile {
     const value = (input ?? {}) as Partial<ContributorProfile>;
+    const goal = typeof value.goal === "string" ? value.goal.trim().slice(0, 160) : "";
 
     return {
       experienceLevel: EXPERIENCE_LEVELS.includes(value.experienceLevel as never)
@@ -50,6 +54,7 @@ export const contributorProfileSchema = {
       preferredContributionType: PREFERRED_TYPES.includes(value.preferredContributionType as never)
         ? value.preferredContributionType as ContributorProfile["preferredContributionType"]
         : "any",
+      ...(goal ? { goal } : {}),
     };
   },
 };
@@ -96,6 +101,7 @@ export const aiEntryPointAnalysisSchema = {
           !isString(recommendation.summary) ||
           !EXPERIENCE_LEVELS.includes(recommendation.difficulty) ||
           !["low", "medium", "high"].includes(recommendation.confidence) ||
+          !EFFORT_LEVELS.includes(recommendation.estimatedEffort) ||
           !isString(recommendation.whyItFits)
         ) {
           throw new Error("Invalid recommendation");
@@ -111,6 +117,7 @@ export const aiEntryPointAnalysisSchema = {
           summary: recommendation.summary,
           difficulty: recommendation.difficulty,
           confidence: recommendation.confidence,
+          estimatedEffort: recommendation.estimatedEffort,
           ...(issueNumber === undefined ? {} : { issueNumber }),
           ...(issueUrl === undefined ? {} : { issueUrl }),
           whyItFits: recommendation.whyItFits,
