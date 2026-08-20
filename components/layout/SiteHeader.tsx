@@ -8,7 +8,7 @@ export function SiteHeader() {
         <Link className="wordmark" href="/" aria-label="RepoPilot home">
           <span className="wordmark__mark" aria-hidden="true">
             <Image
-              src="/repopilot-logo.png.png"
+              src="/repopilot-logo.png"
               alt=""
               width={40}
               height={40}
