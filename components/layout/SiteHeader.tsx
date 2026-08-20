@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function SiteHeader() {
@@ -5,7 +6,16 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="site-header__inner">
         <Link className="wordmark" href="/" aria-label="RepoPilot home">
-          <span className="wordmark__mark" aria-hidden="true">R</span>
+          <span className="wordmark__mark" aria-hidden="true">
+            <Image
+              src="/repopilot-logo.png.png"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="wordmark__logo"
+            />
+          </span>
           <span>RepoPilot</span>
         </Link>
         <nav className="site-nav" aria-label="Primary navigation">
