@@ -24,7 +24,7 @@ export function Features() {
       <div className="feature-grid">
         {features.map(([feature, description]) => (
           <article className="elevated-card" key={feature} style={{ padding: 24 }}>
-            <div style={{ color: "var(--accent-2)", marginBottom: 14 }}><Icon /></div>
+            <div style={{ color: "var(--primary)", marginBottom: 14 }}><Icon /></div>
             <h3>{feature}</h3>
             <p className="muted" style={{ lineHeight: 1.65 }}>{description}</p>
           </article>
